@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produce Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 1rem;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 0.5rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .input-row {
+            display: flex;
+            width: 100%;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        input, button {
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        input {
+            flex-grow: 1;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            min-width: 60px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .item {
+            background-color: white;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            cursor: pointer;
+            color: #2962ff;
+        }
+        
+        .item-qty {
+            color: #666;
+        }
+        
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            min-width: auto;
+        }
+        
+        .remove-btn {
+            background-color: #f44336;
+            margin-left: 0.5rem;
+        }
+        
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .scanner-content {
+            padding: 1rem;
+        }
+        
+        #scanner-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        #interactive.viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        #interactive.viewport canvas, video {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            object-fit: cover;
+        }
+        
+        #scanResult {
+            margin: 1rem 0;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        .close-modal {
+            display: block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .barcode-container {
+            margin: 1rem 0;
+        }
+        
+        .no-items {
+            text-align: center;
+            color: #666;
+            margin-top: 2rem;
+        }
+        
+        #scanBtn {
+            background-color: #2962ff;
+            padding: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        #scanBtn:hover {
+            background-color: #1546c0;
+        }
+        
+        #lookupBtn {
+            background-color: #ff9800;
+            padding: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        #lookupBtn:hover {
+            background-color: #e68a00;
+        }
+        
+        .search-container {
+            margin-bottom: 1rem;
+        }
+        
+        #pluSearchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        
+        .plu-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .plu-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .plu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .plu-code {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .organic-badge {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+        
+        #productQtyInput {
+            width: 80px;
+            flex-grow: 0;
+        }
+        
+        .status-message {
+            background-color: #f5f5f5;
+            border-left: 4px solid #ff9800;
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Produce Management</h1>
+        
+        <div class="input-group">
+            <div class="input-row">
+                <input type="text" id="productIdInput" placeholder="Enter Product ID">
+                <button id="scanBtn" title="Scan Barcode">📷</button>
+                <button id="lookupBtn" title="PLU Lookup">🔍</button>
+            </div>
+            <div class="input-row">
+                <input type="text" id="productNameInput" placeholder="Enter Product Name">
+                <input type="number" id="productQtyInput" placeholder="Qty" min="1" value="1">
+                <button id="addItemBtn">Add</button>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <ul id="itemList" class="item-list"></ul>
+        
+        <div id="noItems" class="no-items">No items in list</div>
+    </div>
+    
+    <div id="barcodeModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalItemTitle"></h2>
+            <p>Product ID: <span id="modalItemId"></span></p>
+            <div class="barcode-container">
+                <svg id="barcode"></svg>
+            </div>
+            <button class="close-modal" id="closeBarcodeBtn">Close</button>
+        </div>
+    </div>
+    
+    <div id="scannerModal" class="modal">
+        <div class="modal-content scanner-content">
+            <h2>Scan Barcode</h2>
+            <div id="scanner-container">
+                <div id="interactive" class="viewport"></div>
+            </div>
+            <div id="scanResult"></div>
+            <button class="close-modal" id="closeScannerBtn">Close</button>
+        </div>
+    </div>
+    
+    <div id="pluModal" class="modal">
+        <div class="modal-content">
+            <h2>PLU Code Lookup</h2>
+            <div class="search-container">
+                <input type="text" id="pluSearchInput" placeholder="Search produce items...">
+            </div>
+            <div id="pluSearchResults" class="plu-results"></div>
+            <button class="close-modal" id="closePluBtn">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        // Store for produce items
+        let produceItems = [];
+        
+        // PLU codes database - will be populated from GitHub or fallback
+        let pluCodes = [];
+        
+        // DOM elements
+        const productIdInput = document.getElementById('productIdInput');
+        const productNameInput = document.getElementById('productNameInput');
+        const productQtyInput = document.getElementById('productQtyInput');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const scanBtn = document.getElementById('scanBtn');
+        const lookupBtn = document.getElementById('lookupBtn');
+        const itemList = document.getElementById('itemList');
+        const noItemsEl = document.getElementById('noItems');
+        const barcodeModal = document.getElementById('barcodeModal');
+        const scannerModal = document.getElementById('scannerModal');
+        const pluModal = document.getElementById('pluModal');
+        const modalItemTitle = document.getElementById('modalItemTitle');
+        const modalItemId = document.getElementById('modalItemId');
+        const scanResult = document.getElementById('scanResult');
+        const pluSearchInput = document.getElementById('pluSearchInput');
+        const pluSearchResults = document.getElementById('pluSearchResults');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        // Add default items
+        const defaultItems = [
+            { id: '4011', name: 'Bananas', qty: 18 },
+            { id: '94011', name: 'Organic Bananas', qty: 3 },
+            { id: '4770', name: 'Broccoli Crowns', qty: 3 },
+            { id: '3283', name: 'Honeycrisp Apples', qty: 2 }
+        ];
+        
+        // Initialize the app
+        function init() {
+            // Load items from localStorage or use defaults
+            const savedItems = localStorage.getItem('produceItems');
+            if (savedItems) {
+                produceItems = JSON.parse(savedItems);
+            } else {
+                produceItems = [...defaultItems];
+                saveItems();
+            }
+            
+            // Load PLU codes
+            loadPluCodes()
+                .then(() => {
+                    console.log(`Loaded ${pluCodes.length} PLU codes`);
+                })
+                .catch(error => {
+                    console.error('Error loading PLU codes:', error);
+                });
+            
+            renderItems();
+            setupEventListeners();
+        }
+        
+        // Load PLU codes from GitHub with fallback
+        async function loadPluCodes() {
+            try {
+                // Show loading status
+                showStatus('Loading PLU codes from repository...', 'loading');
+                
+                // Try to load from GitHub
+                const response = await fetch('https://raw.githubusercontent.com/R3V1Z3/orderlist/main/plu-codes.json');
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch PLU codes: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                pluCodes = data;
+                
+                showStatus('PLU codes loaded from repository', 'success');
+                setTimeout(() => hideStatus(), 3000);
+                
+                console.log('Loaded PLU codes from GitHub');
+            } catch (error) {
+                console.log('Falling back to built-in PLU codes', error);
+                showStatus('Using built-in PLU codes', 'info');
+                setTimeout(() => hideStatus(), 3000);
+                
+                // Fallback to built-in list
+                pluCodes = [
+                    { plu: "4011", name: "Bananas", isOrganic: false },
+                    { plu: "94011", name: "Organic Bananas", isOrganic: true },
+                    { plu: "4225", name: "Avocado - Hass Large", isOrganic: false },
+                    { plu: "94225", name: "Organic Avocado - Hass Large", isOrganic: true },
+                    { plu: "4046", name: "Avocado - Small/Medium", isOrganic: false },
+                    { plu: "4770", name: "Broccoli Crowns", isOrganic: false },
+                    { plu: "94770", name: "Organic Broccoli Crowns", isOrganic: true },
+                    { plu: "4131", name: "Broccoli Bunch", isOrganic: false },
+                    { plu: "3283", name: "Honeycrisp Apples", isOrganic: false },
+                    { plu: "93283", name: "Organic Honeycrisp Apples", isOrganic: true },
+                    { plu: "4017", name: "Granny Smith Apples", isOrganic: false },
+                    { plu: "94017", name: "Organic Granny Smith Apples", isOrganic: true },
+                    { plu: "4016", name: "Red Delicious Apples", isOrganic: false },
+                    { plu: "94016", name: "Organic Red Delicious Apples", isOrganic: true },
+                    { plu: "4173", name: "Oranges - Navel", isOrganic: false },
+                    { plu: "94173", name: "Organic Oranges - Navel", isOrganic: true },
+                    { plu: "4012", name: "Lemons", isOrganic: false },
+                    { plu: "94012", name: "Organic Lemons", isOrganic: true },
+                    { plu: "4053", name: "Limes", isOrganic: false },
+                    { plu: "94053", name: "Organic Limes", isOrganic: true },
+                    { plu: "4065", name: "Green Bell Pepper", isOrganic: false },
+                    { plu: "94065", name: "Organic Green Bell Pepper", isOrganic: true },
+                    { plu: "4688", name: "Red Bell Pepper", isOrganic: false },
+                    { plu: "94688", name: "Organic Red Bell Pepper", isOrganic: true },
+                    { plu: "4689", name: "Yellow Bell Pepper", isOrganic: false },
+                    { plu: "94689", name: "Organic Yellow Bell Pepper", isOrganic: true },
+                    { plu: "4072", name: "Red Potatoes", isOrganic: false },
+                    { plu: "94072", name: "Organic Red Potatoes", isOrganic: true },
+                    { plu: "4073", name: "Russet Potatoes", isOrganic: false },
+                    { plu: "94073", name: "Organic Russet Potatoes", isOrganic: true },
+                    { plu: "4068", name: "Yellow Onions", isOrganic: false },
+                    { plu: "94068", name: "Organic Yellow Onions", isOrganic: true },
+                    { plu: "4663", name: "White Onions", isOrganic: false },
+                    { plu: "94663", name: "Organic White Onions", isOrganic: true },
+                    { plu: "4082", name: "Red Onions", isOrganic: false },
+                    { plu: "94082", name: "Organic Red Onions", isOrganic: true },
+                    { plu: "4070", name: "Celery", isOrganic: false },
+                    { plu: "94070", name: "Organic Celery", isOrganic: true },
+                    { plu: "4062", name: "Cucumber", isOrganic: false },
+                    { plu: "94062", name: "Organic Cucumber", isOrganic: true },
+                    { plu: "4061", name: "Romaine Lettuce", isOrganic: false },
+                    { plu: "94061", name: "Organic Romaine Lettuce", isOrganic: true },
+                    { plu: "4069", name: "Cabbage - Green", isOrganic: false },
+                    { plu: "94069", name: "Organic Cabbage - Green", isOrganic: true },
+                    { plu: "4066", name: "Mushrooms - White", isOrganic: false },
+                    { plu: "94066", name: "Organic Mushrooms - White", isOrganic: true },
+                    { plu: "4064", name: "Tomatoes - Vine Ripe", isOrganic: false },
+                    { plu: "94064", name: "Organic Tomatoes - Vine Ripe", isOrganic: true },
+                    { plu: "4087", name: "Roma Tomatoes", isOrganic: false },
+                    { plu: "94087", name: "Organic Roma Tomatoes", isOrganic: true }
+                ];
+            }
+        }
+        
+        // Status message functions
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.style.display = 'block';
+            
+            // Reset classes
+            statusMessage.className = 'status-message';
+            
+            // Add type-specific class
+            switch (type) {
+                case 'success':
+                    statusMessage.style.borderLeftColor = '#4CAF50';
+                    break;
+                case 'error':
+                    statusMessage.style.borderLeftColor = '#f44336';
+                    break;
+                case 'loading':
+                    statusMessage.style.borderLeftColor = '#2196F3';
+                    break;
+                case 'info':
+                default:
+                    statusMessage.style.borderLeftColor = '#ff9800';
+                    break;
+            }
+        }
+        
+        function hideStatus() {
+            statusMessage.style.display = 'none';
+        }
+        
+        // Save items to localStorage
+        function saveItems() {
+            localStorage.setItem('produceItems', JSON.stringify(produceItems));
+        }
+        
+        // Render the item list
+        function renderItems() {
+            itemList.innerHTML = '';
+            
+            if (produceItems.length === 0) {
+                noItemsEl.style.display = 'block';
+                return;
+            }
+            
+            noItemsEl.style.display = 'none';
+            
+            produceItems.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'item';
+                li.innerHTML = `
+                    <div>
+                        <div class="item-title" data-id="${item.id}" data-name="${item.name}">${item.name}</div>
+                        <small>ID: ${item.id}</small>
+                    </div>
+                    <div class="qty-controls">
+                        <span class="item-qty">Qty: ${item.qty}</span>
+                        <button class="qty-btn decrease-btn" data-index="${index}">-</button>
+                        <button class="qty-btn increase-btn" data-index="${index}">+</button>
+                        <button class="qty-btn remove-btn" data-index="${index}">×</button>
+                    </div>
+                `;
+                itemList.appendChild(li);
+            });
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Add item button
+            addItemBtn.addEventListener('click', addItem);
+            
+            // Scan button
+            scanBtn.addEventListener('click', startScanner);
+            
+            // PLU Lookup button
+            lookupBtn.addEventListener('click', openPluLookup);
+            
+            // Item title click (for barcode)
+            itemList.addEventListener('click', handleItemClick);
+            
+            // Close barcode modal button
+            document.getElementById('closeBarcodeBtn').addEventListener('click', () => {
+                barcodeModal.style.display = 'none';
+            });
+            
+            // Close scanner modal button
+            document.getElementById('closeScannerBtn').addEventListener('click', () => {
+                stopScanner();
+                scannerModal.style.display = 'none';
+            });
+            
+            // Close PLU modal button
+            document.getElementById('closePluBtn').addEventListener('click', () => {
+                pluModal.style.display = 'none';
+            });
+            
+            // PLU search input
+            pluSearchInput.addEventListener('input', searchPluCodes);
+            
+            // PLU search results click
+            pluSearchResults.addEventListener('click', handlePluSelection);
+            
+            // Close modals when clicking outside the content
+            barcodeModal.addEventListener('click', (e) => {
+                if (e.target === barcodeModal) {
+                    barcodeModal.style.display = 'none';
+                }
+            });
+            
+            scannerModal.addEventListener('click', (e) => {
+                if (e.target === scannerModal) {
+                    stopScanner();
+                    scannerModal.style.display = 'none';
+                }
+            });
+            
+            pluModal.addEventListener('click', (e) => {
+                if (e.target === pluModal) {
+                    pluModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Handle click events on the item list
+        function handleItemClick(e) {
+            // Decrease quantity
+            if (e.target.classList.contains('decrease-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                if (produceItems[index].qty > 1) {
+                    produceItems[index].qty--;
+                    saveItems();
+                    renderItems();
+                }
+                return;
+            }
+            
+            // Increase quantity
+            if (e.target.classList.contains('increase-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                produceItems[index].qty++;
+                saveItems();
+                renderItems();
+                return;
+            }
+            
+            // Remove item
+            if (e.target.classList.contains('remove-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                produceItems.splice(index, 1);
+                saveItems();
+                renderItems();
+                return;
+            }
+            
+            // Show barcode
+            if (e.target.classList.contains('item-title')) {
+                const id = e.target.dataset.id;
+                const name = e.target.dataset.name;
+                showBarcode(id, name);
+            }
+        }
+        
+        // Add new item
+        function addItem() {
+            const id = productIdInput.value.trim();
+            const name = productNameInput.value.trim();
+            let qty = parseInt(productQtyInput.value);
+            
+            if (!id) {
+                alert('Please enter a Product ID');
+                return;
+            }
+            
+            if (!name) {
+                alert('Please enter a Product Name');
+                return;
+            }
+            
+            if (isNaN(qty) || qty < 1) {
+                qty = 1;
+            }
+            
+            // Check if item with same ID already exists
+            const existingIndex = produceItems.findIndex(item => item.id === id);
+            if (existingIndex !== -1) {
+                produceItems[existingIndex].qty += qty;
+            } else {
+                produceItems.push({ id, name, qty });
+            }
+            
+            saveItems();
+            renderItems();
+            
+            // Clear inputs
+            productIdInput.value = '';
+            productNameInput.value = '';
+            productQtyInput.value = '1';
+        }
+        
+        // Show barcode modal
+        function showBarcode(id, name) {
+            modalItemTitle.textContent = name;
+            modalItemId.textContent = id;
+            
+            // Generate barcode
+            JsBarcode("#barcode", id, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 2,
+                height: 100,
+                displayValue: true
+            });
+            
+            barcodeModal.style.display = 'flex';
+        }
+        
+        // Scanner functionality
+        let scannerIsRunning = false;
+        
+        function startScanner() {
+            scannerModal.style.display = 'flex';
+            scanResult.textContent = 'Requesting camera permission...';
+            
+            // Check if getUserMedia is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                scanResult.textContent = 'Camera access is not supported in this browser.';
+                return;
+            }
+            
+            // First, try to get camera permission explicitly
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(stream) {
+                    // Successfully got camera permission, now close this stream and start Quagga
+                    stream.getTracks().forEach(track => track.stop());
+                    initQuagga();
+                })
+                .catch(function(err) {
+                    // Handle specific errors
+                    if (err.name === "NotAllowedError") {
+                        scanResult.innerHTML = '<strong>Camera access denied</strong><br>' +
+                            'Please allow camera access in your browser settings:<br>' +
+                            '1. In iOS Settings, find Chrome/Safari<br>' +
+                            '2. Enable camera access for the browser<br>' +
+                            '3. Make sure you\'re on HTTPS if using a web server<br>' +
+                            '4. Try closing and reopening your browser';
+                    } else {
+                        scanResult.textContent = 'Error accessing camera: ' + err.message;
+                    }
+                });
+        }
+        
+        function initQuagga() {
+            scanResult.textContent = 'Starting scanner...';
+            
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector("#interactive"),
+                    constraints: {
+                        facingMode: "environment", // Use the back camera for mobile devices
+                        width: { min: 640 },
+                        height: { min: 480 },
+                        aspectRatio: { min: 1, max: 2 }
+                    },
+                },
+                locator: {
+                    patchSize: "medium",
+                    halfSample: true
+                },
+                numOfWorkers: 2,
+                frequency: 10,
+                decoder: {
+                    readers: [
+                        "code_128_reader",
+                        "ean_reader",
+                        "ean_8_reader",
+                        "code_39_reader",
+                        "upc_reader",
+                        "upc_e_reader"
+                    ]
+                },
+                locate: true
+            }, function(err) {
+                if (err) {
+                    scanResult.innerHTML = '<strong>Scanner error:</strong> ' + err + '<br>' +
+                        'Try refreshing the page or check browser settings.';
+                    return;
+                }
+                scannerIsRunning = true;
+                scanResult.textContent = 'Scanner running. Point camera at a barcode.';
+                Quagga.start();
+            });
+            
+            // Barcode detection callback
+            Quagga.onDetected(function(result) {
+                if (result && result.codeResult) {
+                    const code = result.codeResult.code;
+                    scanResult.textContent = 'Detected: ' + code;
+                    productIdInput.value = code;
+                    
+                    // Vibrate if supported
+                    if (navigator.vibrate) {
+                        navigator.vibrate(200);
+                    }
+                    
+                    // Stop the scanner after successful detection
+                    setTimeout(() => {
+                        stopScanner();
+                        scannerModal.style.display = 'none';
+                    }, 1000);
+                }
+            });
+        }
+        
+        function stopScanner() {
+            if (scannerIsRunning) {
+                Quagga.stop();
+                scannerIsRunning = false;
+            }
+        }
+        
+        // PLU code lookup functionality
+        function openPluLookup() {
+            pluSearchInput.value = '';
+            
+            // Check if PLU codes are loaded yet
+            if (pluCodes.length === 0) {
+                pluSearchResults.innerHTML = '<div class="plu-item">Loading PLU codes...</div>';
+                
+                // Try loading again
+                loadPluCodes()
+                    .then(() => {
+                        renderPluSearchResults(pluCodes);
+                    })
+                    .catch(() => {
+                        pluSearchResults.innerHTML = '<div class="plu-item">Failed to load PLU codes</div>';
+                    });
+            } else {
+                renderPluSearchResults(pluCodes);
+            }
+            
+            pluModal.style.display = 'flex';
+            pluSearchInput.focus();
+        }
+        
+        function searchPluCodes() {
+            const searchValue = pluSearchInput.value.toLowerCase();
+            
+            if (searchValue.trim() === '') {
+                renderPluSearchResults(pluCodes);
+                return;
+            }
+            
+            const filteredCodes = pluCodes.filter(item => 
+                item.plu.includes(searchValue) || 
+                item.name.toLowerCase().includes(searchValue)
+            );
+            
+            renderPluSearchResults(filteredCodes);
+        }
+        
+        function renderPluSearchResults(results) {
+            pluSearchResults.innerHTML = '';
+            
+            if (results.length === 0) {
+                pluSearchResults.innerHTML = '<div class="plu-item">No matching produce found</div>';
+                return;
+            }
+            
+            results.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'plu-item';
+                resultItem.dataset.plu = item.plu;
+                resultItem.dataset.name = item.name;
+                
+                resultItem.innerHTML = `
+                    <span class="plu-code">${item.plu}</span>
+                    <span>${item.name}</span>
+                    ${item.isOrganic ? '<span class="organic-badge">Organic</span>' : ''}
+                `;
+                
+                pluSearchResults.appendChild(resultItem);
+            });
+        }
+        
+        function handlePluSelection(e) {
+            const item = e.target.closest('.plu-item');
+            if (!item) return;
+            
+            const plu = item.dataset.plu;
+            const name = item.dataset.name;
+            
+            productIdInput.value = plu;
+            productNameInput.value = name;
+            
+            pluModal.style.display = 'none';
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
