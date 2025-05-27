@@ -1,6 +1,9 @@
 [
   { "plu": "4011", "name": "Bananas", "isOrganic": false },
   { "plu": "94011", "name": "Organic Bananas", "isOrganic": true },
+  { "plu": "0040108098589", "name": "Compost Bin", "isOrganic": false },
+  { "plu": "0005410740200", "name": "Mighties Green Fresh Kiwi", "isOrganic": false },
+  { "plu": "0003338370154", "name": "Brussel Sprouts (bag)", "isOrganic": false },
   { "plu": "4225", "name": "Avocado - Hass Large", "isOrganic": false },
   { "plu": "94225", "name": "Organic Avocado - Hass Large", "isOrganic": true },
   { "plu": "4046", "name": "Avocado - Small/Medium", "isOrganic": false },
