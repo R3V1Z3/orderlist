@@ -1,7 +1,27 @@
 [
   {
+    "plu": "0001111001678",
+    "name": "Simple Truth Organic Peeled Rainbow Baby Carrots",
+    "isOrganic": true
+  },
+  {
     "plu": "0001111062749",
     "name": "Baby Carrots Peeled 8oz",
+    "isOrganic": false
+  },
+  {
+    "plu": "0001111090020",
+    "name": "Simple Truth Organic Mini Sweet Peppers 16oz",
+    "isOrganic": true
+  },
+  {
+    "plu": "0001111091660",
+    "name": "Simple Truth Organic Celery Hearts 1lb",
+    "isOrganic": true
+  },
+  {
+    "plu": "00011111065145",
+    "name": "Kroger zesty italian salad",
     "isOrganic": false
   },
   {
@@ -32,6 +52,11 @@
   {
     "plu": "3082",
     "name": "Broccoli Crowns",
+    "isOrganic": false
+  },
+  {
+    "plu": "3277",
+    "name": "Broccolini",
     "isOrganic": false
   },
   {
@@ -195,6 +220,11 @@
     "isOrganic": false
   },
   {
+    "plu": "4816",
+    "name": "Sweet Potato",
+    "isOrganic": false
+  },
+  {
     "plu": "93283",
     "name": "Organic Honeycrisp Apples",
     "isOrganic": true
@@ -327,6 +357,21 @@
   {
     "plu": "94770",
     "name": "Organic Broccoli Crowns",
+    "isOrganic": true
+  },
+  {
+    "plu": "94784",
+    "name": "Organic Yellow Squash",
+    "isOrganic": true
+  },
+  {
+    "plu": "94889",
+    "name": "Organic Cilantro",
+    "isOrganic": true
+  },
+  {
+    "plu": "94901",
+    "name": "Organic Italian Parsley",
     "isOrganic": true
   }
 ]
