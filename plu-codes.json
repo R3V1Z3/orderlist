@@ -10,6 +10,11 @@
     "isOrganic": false
   },
   {
+    "plu": "0001111065427",
+    "name": "Pineapple",
+    "isOrganic": false
+  },
+  {
     "plu": "0001111090020",
     "name": "Simple Truth Organic Mini Sweet Peppers 16oz",
     "isOrganic": true
@@ -47,6 +52,11 @@
   {
     "plu": "0075166677155",
     "name": "NatureSweet Cherub Tomatoes 8 oz",
+    "isOrganic": false
+  },
+  {
+    "plu": "3040",
+    "name": "Dragon Fruit - White",
     "isOrganic": false
   },
   {
@@ -95,6 +105,11 @@
     "isOrganic": false
   },
   {
+    "plu": "4045",
+    "name": "Cherries",
+    "isOrganic": false
+  },
+  {
     "plu": "4046",
     "name": "Avocado - Small/Medium",
     "isOrganic": false
@@ -105,7 +120,7 @@
     "isOrganic": false
   },
   {
-    "plu": "4053",
+    "plu": "4048",
     "name": "Limes",
     "isOrganic": false
   },
@@ -190,6 +205,11 @@
     "isOrganic": false
   },
   {
+    "plu": "4552",
+    "name": "Nappa Cabbage",
+    "isOrganic": false
+  },
+  {
     "plu": "4554",
     "name": "Red Cabbage",
     "isOrganic": false
@@ -205,6 +225,11 @@
     "isOrganic": false
   },
   {
+    "plu": "4665",
+    "name": "Okra",
+    "isOrganic": false
+  },
+  {
     "plu": "4688",
     "name": "Red Bell Pepper",
     "isOrganic": false
@@ -212,6 +237,11 @@
   {
     "plu": "4689",
     "name": "Yellow Bell Pepper",
+    "isOrganic": false
+  },
+  {
+    "plu": "4745",
+    "name": "Rhubarb",
     "isOrganic": false
   },
   {
@@ -337,6 +367,11 @@
   {
     "plu": "94539",
     "name": "Beets Organic",
+    "isOrganic": true
+  },
+  {
+    "plu": "94640",
+    "name": "Organic Romaine",
     "isOrganic": true
   },
   {
